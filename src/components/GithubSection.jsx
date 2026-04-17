@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-const GITHUB_URL = 'https://github.com/yourusername/smart-glasses-drowsiness'
+const GITHUB_URL = 'https://github.com/asp0766/smart-glasses-portfolio'
 
 const features = [
   'ESP32 firmware for GPIO, I²S audio, and UART camera bridge',
