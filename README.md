@@ -1,6 +1,6 @@
-# 🕶️ Smart IoT Glasses — Portfolio Site
+# 🕶️ Smart IoT Glasses
 
-Production-ready marketing / portfolio site for an **IoT smart glasses** project that detects **drowsiness** via a camera and triggers a **speaker alert** after **4–5 seconds** of eye closure.
+an **IoT smart glasses** project that detects **drowsiness** via a camera and triggers a **speaker alert** after **4–5 seconds** of eye closure.
 
 ---
 
@@ -60,34 +60,6 @@ This system is designed to monitor eye activity in real-time and detect signs of
 - **Framer Motion (Animations)**
 
 ---
-
-## 📁 Folder Structure
-
-
-smart-glasses-portfolio/
-├── public/
-│ └── favicon.svg
-├── src/
-│ ├── components/
-│ │ ├── Hero.jsx
-│ │ ├── ModelViewer.jsx
-│ │ ├── InfoPanel.jsx
-│ │ ├── FlowSection.jsx
-│ │ ├── CodeSection.jsx
-│ │ ├── GithubSection.jsx
-│ │ ├── Contact.jsx
-│ │ ├── ScrollProgress.jsx
-│ │ └── ThemeToggle.jsx
-│ ├── context/
-│ │ ├── themeContext.js
-│ │ ├── ThemeProvider.jsx
-│ │ └── useTheme.js
-│ ├── App.jsx
-│ ├── main.jsx
-│ └── index.css
-├── netlify.toml
-├── vite.config.js
-└── package.json
 
 
 ---
