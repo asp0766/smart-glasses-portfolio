@@ -96,34 +96,53 @@ smart-glasses-portfolio/
 
 **Requirements:** Node.js 18+ (20+ recommended)
 
-```bash
+
 cd smart-glasses-portfolio
 npm install
+
+
 🚀 Commands
 Command	Description
 npm run dev	Start development server
 npm run build	Production build
 npm run preview	Preview build
+
+
+
 🧩 3D Viewer
 Built using React Three Fiber + Three.js
 Interactive model with:
 Rotation (OrbitControls)
 Clickable components (Camera, ESP32, Speaker, Battery)
 Each component shows detailed information
+
+
+
 ⚙️ Customization
 GitHub link → GithubSection.jsx
 Contact info → Contact.jsx
+
+
+
 🚀 Deployment (Netlify)
 Push project to GitHub
 Connect repo on Netlify
+
+
 Use:
 Build command: npm run build
 Publish directory: dist
+
+
+
 ⭐ Highlights
 Real-time drowsiness detection concept
 Interactive 3D product visualization
 Clean and modern UI
 Recruiter-friendly portfolio design
+
+
+
 📞 Contact
 
 Name: Anurag Parmar
