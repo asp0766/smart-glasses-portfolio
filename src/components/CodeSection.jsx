@@ -3,38 +3,104 @@ import { motion } from 'framer-motion'
 const code = `import cv2
 import mediapipe as mp
 import time
+import math
+import threading
+import winsound
 
-mp_face = mp.solutions.face_mesh
-CLOSED_SEC = 4.5      # alert if eyes closed longer than this
-EAR_OPEN = 0.22       # tune per camera / lighting
+# -------- SOUND FUNCTION --------
+def play_alert():
+    winsound.Beep(1500, 1000)  # frequency, duration
 
-def eye_aspect_ratio(landmarks, idx_a, idx_b, idx_c, idx_d):
-    # Simplified vertical / horizontal ratio for one eye
-    v = ((landmarks[idx_a].y - landmarks[idx_b].y) ** 2) ** 0.5
-    h = ((landmarks[idx_c].x - landmarks[idx_d].x) ** 2) ** 0.5
-    return v / (h + 1e-6)
 
+# -------- MEDIAPIPE SETUP --------
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(refine_landmarks=True)
+
+# Eye landmark indices
+LEFT_EYE = [33, 160, 158, 133, 153, 144]
+RIGHT_EYE = [362, 385, 387, 263, 373, 380]
+
+# -------- EAR FUNCTION --------
+def eye_aspect_ratio(eye):
+    def dist(p1, p2):
+        return math.hypot(p1.x - p2.x, p1.y - p2.y)
+
+    A = dist(eye[1], eye[5])
+    B = dist(eye[2], eye[4])
+    C = dist(eye[0], eye[3])
+
+    return (A + B) / (2.0 * C)
+
+
+# -------- CAMERA --------
 cap = cv2.VideoCapture(0)
-closed_since = None
 
-with mp_face.FaceMesh(max_num_faces=1) as mesh:
-    while True:
-        ok, frame = cap.read()
-        if not ok:
-            break
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        res = mesh.process(rgb)
-        if res.multi_face_landmarks:
-            lm = res.multi_face_landmarks[0].landmark
-            ear = (eye_aspect_ratio(lm, 159, 145, 33, 133) +
-                   eye_aspect_ratio(lm, 386, 374, 263, 362)) / 2
-            if ear < EAR_OPEN:
-                if closed_since is None:
-                    closed_since = time.time()
-                elif time.time() - closed_since >= CLOSED_SEC:
-                    trigger_speaker_alert()   # ESP32 / GPIO / serial
+closed_start_time = None
+THRESHOLD = 0.25   # EAR threshold
+TIME_LIMIT = 4     # seconds
+
+alert_played = False  # to avoid continuous beep
+
+print("Camera started... Press ESC to exit.")
+
+# -------- MAIN LOOP --------
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        print("Camera not working!")
+        break
+
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    result = face_mesh.process(rgb)
+
+    if result.multi_face_landmarks:
+        for face_landmarks in result.multi_face_landmarks:
+
+            # Get eye points
+            left_eye = [face_landmarks.landmark[i] for i in LEFT_EYE]
+            right_eye = [face_landmarks.landmark[i] for i in RIGHT_EYE]
+
+            left_ear = eye_aspect_ratio(left_eye)
+            right_ear = eye_aspect_ratio(right_eye)
+
+            ear = (left_ear + right_ear) / 2.0
+
+            # Display EAR
+            cv2.putText(frame, f"EAR: {ear:.2f}", (30, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
+
+            # -------- EYE CLOSED DETECTION --------
+            if ear < THRESHOLD:
+                if closed_start_time is None:
+                    closed_start_time = time.time()
+                    alert_played = False
+
+                elapsed = time.time() - closed_start_time
+
+                cv2.putText(frame, f"Closed: {elapsed:.1f}s",
+                            (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)
+
+                # -------- ALERT --------
+                if elapsed >= TIME_LIMIT:
+                    cv2.putText(frame, "ALERT! WAKE UP!",
+                                (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+
+                    if not alert_played:
+                        threading.Thread(target=play_alert).start()
+                        alert_played = True
+
             else:
-                closed_since = None
+                closed_start_time = None
+                alert_played = False
+
+    cv2.imshow("Drowsiness Detection", frame)
+
+    # ESC to exit
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
 `
 
 export default function CodeSection() {
