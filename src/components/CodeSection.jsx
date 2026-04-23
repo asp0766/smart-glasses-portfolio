@@ -9,7 +9,7 @@ import winsound
 
 # -------- SOUND FUNCTION --------
 def play_alert():
-    winsound.Beep(1500, 1000)  # frequency, duration
+    winsound.Beep(1500, 10000)  # frequency, duration = 10 Seconds
 
 
 # -------- MEDIAPIPE SETUP --------
